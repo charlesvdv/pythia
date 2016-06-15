@@ -136,13 +136,18 @@ func TestJobAbort(t *testing.T) {
 	go func() {
 		wd := testutils.Watchdog(t, 2)
 		status, output := job.Execute()
+		t.Log("job excecuted")
 		wd.Stop()
+		t.Log("coroutine job stopped")
 		testutils.Expect(t, "status", pythia.Abort, status)
 		testutils.Expect(t, "output", "Start\n", output)
 		done <- true
 	}()
+	t.Log("sleep begin")
 	time.Sleep(1 * time.Second)
+	t.Log("sleep end")
 	job.Abort()
+	t.Log("job aborted")
 	<-done
 }
 

@@ -51,7 +51,7 @@ go_env:
 $(call add_target,gotest,MISC,Run Go tests)
 check: gotest
 gotest: $$(ENV_BUSYBOX) $$(TASKS)
-	$(GO) test $(addsuffix /...,$(GO_PACKAGES))
+	$(GO) test -v $(addsuffix /...,$(GO_PACKAGES))
 
 $(call add_target,godoc,MISC,Launch godoc server on port 6060)
 godoc:
