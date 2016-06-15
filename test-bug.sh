@@ -14,7 +14,7 @@ while [ $bug -lt 50 ]; do
         # https://gist.github.com/earthgecko/3089509
         randstr=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
         echo $out | grep "bad file descriptor"
-        if [ $? -e 0 ]; then
+        if [ $? -eq 0 ]; then
             randstr="bad-file-${randstr}"
         fi
         echo $out
