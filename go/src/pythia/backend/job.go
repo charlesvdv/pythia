@@ -69,6 +69,8 @@ type Job struct {
 
 	// Barrier to wait for all goroutines associated to a job execution to end.
 	wg sync.WaitGroup
+
+	isAlive bool
 }
 
 // NewJob returns a new job, filled with default parameters. To execute the
@@ -123,6 +125,7 @@ func (job *Job) Execute() (status pythia.Status, output string) {
 		return pythia.Error, fmt.Sprint(err)
 	}
 	job.pid = cmd.Process.Pid
+	job.isAlive = true
 	job.wg.Add(2)
 	go job.watch()
 	go job.gatherOutput(stdout)
@@ -168,6 +171,9 @@ func (job *Job) gatherOutput(stdout io.Reader) {
 	buffer := make([]byte, job.Task.Limits.Output+1)
 	read := 0
 	for {
+		if !job.isAlive {
+			break
+		}
 		n, err := stdout.Read(buffer[read:])
 		read += n
 		if err != nil && err != io.EOF {
@@ -207,6 +213,7 @@ func (job *Job) watch() {
 		job.timeout = true
 	case <-job.interrupt:
 	}
+	job.isAlive = false
 	// Send the KILL signal to the whole UML process group. Do this even when
 	// the job is already done to ensure no zombie processes are left.
 	syscall.Kill(-job.pid, syscall.SIGKILL)
